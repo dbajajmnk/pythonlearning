@@ -1,11 +1,15 @@
 from flask import Blueprint, request, jsonify
 from models.user import User
-
+import bcrypt
 user_routes = Blueprint('user_routes', __name__)
 
 @user_routes.route('/users', methods=['POST'])
 def add_user():
     data = request.json
+    if 'password' in data:
+        # Encrypt the password before saving
+        hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
+        data['password'] = hashed_password.decode('utf-8')
     User.create(data)
     return jsonify({"message": "User added successfully"}), 201
 
