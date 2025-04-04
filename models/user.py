@@ -36,5 +36,20 @@ class User:
     @staticmethod
     def delete(user_id):
         return db.users.delete_one({"_id": ObjectId(user_id)})
+    
+    @staticmethod
+    def get_by_email(email):
+         try:
+                user = db.users.find_one({"email": email})
+                if user:
+                  # Convert ObjectId to string for JSON compatibility
+                    user["_id"] = str(user["_id"])
+                return user
+                return None
+         except Exception as e:
+                    print(f"Error fetching user by email: {str(e)}")
+                    return None
+
+
 
 

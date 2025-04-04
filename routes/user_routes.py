@@ -5,14 +5,24 @@ import bcrypt
 user_routes = Blueprint('user_routes', __name__)
 
 @user_routes.route('/users', methods=['POST'])
+@user_routes.route('/users', methods=['POST'])
 def add_user():
     data = request.json
+    email = data.get('email')
+
+    # Check if a user with the given email already exists
+    existing_user = User.get_by_email(email)
+    if existing_user:
+        return jsonify({"message": "User with this email already exists"}), 409
+
     if 'password' in data:
         # Encrypt the password before saving
         hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
         data['password'] = hashed_password.decode('utf-8')
+
     User.create(data)
     return jsonify({"message": "User added successfully"}), 201
+
 
 @user_routes.route('/users', methods=['GET'])
 def get_users():
