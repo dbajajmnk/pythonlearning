@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models.review import Review
+from utils.json_util import serialize_document
 
 review_routes = Blueprint('review_routes', __name__)
 
@@ -12,7 +13,7 @@ def add_review():
 @review_routes.route('/reviews', methods=['GET'])
 def get_reviews():
     reviews = Review.get_all()
-    return jsonify(reviews), 200
+    return jsonify(serialize_document(reviews)), 200
 
 @review_routes.route('/reviews/<review_id>', methods=['PUT'])
 def update_review(review_id):
