@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models.user import User
+from werkzeug.security import generate_password_hash, check_password_hash
 import bcrypt
 user_routes = Blueprint('user_routes', __name__)
 
@@ -32,3 +33,18 @@ def delete_user(user_id):
     if result.deleted_count:
         return jsonify({"message": "User deleted successfully"}), 200
     return jsonify({"message": "User not found"}), 404
+
+@user_routes.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+
+    # Find the user based on email
+    user = User.find_one({"email": email})
+
+    if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+        return jsonify({"message": "Login successful", "user_id": str(user["_id"])}), 200
+
+    return jsonify({"message": "Invalid email or password"}), 401
+
